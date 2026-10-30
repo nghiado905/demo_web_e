@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EnglishMaster Quiz Pro - Luyện Thi & Giải Đề Tiếng Anh Local</title>
+  <meta name="description" content="Ứng dụng luyện thi tiếng Anh trắc nghiệm cục bộ: Giải đề TOEIC, Ngữ pháp, Từ vựng, Sổ tay câu sai và giải thích chi tiết tiếng Việt.">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+
+  <!-- SVG Gradients -->
+  <svg width="0" height="0" style="position: absolute;">
+    <defs>
+      <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#6366f1" />
+        <stop offset="100%" stop-color="#10b981" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Sticky Top Navigation -->
+  <header class="navbar" id="appNavbar">
+    <div class="nav-brand" id="brandLogo" onclick="app.switchView('sets')">
+      <div class="brand-icon">🎯</div>
+      <div class="brand-text">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <h1>EnglishMaster Pro</h1>
+          <span class="brand-badge">Offline Local</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu Tabs -->
+    <nav class="nav-menu" id="mainNav">
+      <button class="nav-link active" data-view="sets" onclick="app.switchView('sets')">
+        <span>📚</span> Kho Đề
+      </button>
+      <button class="nav-link" data-view="mistakes" onclick="app.switchView('mistakes')">
+        <span>📕</span> Sổ Câu Sai <span class="counter-badge" id="navMistakeBadge" style="display:none;">0</span>
+      </button>
+      <button class="nav-link" data-view="bookmarks" onclick="app.switchView('bookmarks')">
+        <span>⭐</span> Đã Lưu
+      </button>
+      <button class="nav-link" data-view="stats" onclick="app.switchView('stats')">
+        <span>📊</span> Thống Kê
+      </button>
+      <button class="nav-link" data-view="custom" onclick="app.switchView('custom')">
+        <span>➕</span> Thêm Đề & Câu Hỏi
+      </button>
+    </nav>
+
+    <!-- Top Action Buttons -->
+    <div class="nav-actions">
+      <button class="icon-btn" id="soundToggleBtn" title="Bật/Tắt âm thanh hiệu ứng" onclick="app.toggleSound()">
+        <span id="soundIcon">🔊</span>
+      </button>
+      <button class="icon-btn" id="themeToggleBtn" title="Chuyển chế độ Sáng / Tối" onclick="app.toggleTheme()">
+        <span id="themeIcon">☀️</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ==========================================
+         VIEW 1: KHO ĐỀ (TEST LIBRARY & DASHBOARD)
+         ========================================== -->
+    <section id="view-sets" class="view-section active">
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-content">
+          <div class="hero-tag">⚡ Phòng Luyện Đề Cục Bộ - Sát Đề Thi Thật</div>
+          <h2 class="hero-title">Luyện Thi Tiếng Anh Đột Phá</h2>
+          <p class="hero-desc">Lựa chọn chế độ <strong>Luyện tập</strong> (xem ngay lời giải & dịch câu) hoặc <strong>Thi thử</strong> (bấm giờ đếm ngược, tính điểm TOEIC) để kiểm tra năng lực toàn diện.</p>
+          
+          <div class="quick-stats-row">
+            <div class="stat-pill">
+              <div class="stat-pill-icon indigo">📝</div>
+              <div class="stat-pill-info">
+                <div class="value" id="dashTotalExams">0</div>
+                <div class="label">Bài thi đã làm</div>
+              </div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-icon green">🎯</div>
+              <div class="stat-pill-info">
+                <div class="value" id="dashAvgScore">0%</div>
+                <div class="label">Điểm trung bình</div>
+              </div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-icon rose">⚠️</div>
+              <div class="stat-pill-info">
+                <div class="value" id="dashMistakes">0</div>
+                <div class="label">Câu cần ôn lại</div>
+              </div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-icon amber">📚</div>
+              <div class="stat-pill-info">
+                <div class="value" id="dashTotalQuestions">0</div>
+                <div class="label">Tổng số câu hỏi</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test Sets Header & Filter -->
+      <div class="section-header">
+        <h3 class="section-title">
+          <span>📖</span> Danh Sách Bộ Đề Tuyển Chọn
+        </h3>
+        <div class="filter-pills" id="categoryFilters">
+          <button class="filter-btn active" data-filter="all" onclick="app.filterSets('all')">Tất cả</button>
+          <button class="filter-btn" data-filter="TOEIC Practice" onclick="app.filterSets('TOEIC Practice')">TOEIC Part 5</button>
+          <button class="filter-btn" data-filter="Grammar Mastery" onclick="app.filterSets('Grammar Mastery')">Ngữ Pháp Trọng Điểm</button>
+          <button class="filter-btn" data-filter="Vocabulary & Idioms" onclick="app.filterSets('Vocabulary & Idioms')">Từ Vựng & Idioms</button>
+        </div>
+      </div>
+
+      <!-- Test Sets Grid -->
+      <div class="sets-grid" id="testSetsContainer">
+        <!-- Injected via JavaScript -->
+        <div style="text-align:center; padding: 3rem; color: var(--text-muted); grid-column: 1/-1;">Đang tải danh sách đề...</div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 2: PHÒNG THI & LUYỆN TẬP (QUIZ ACTIVE)
+         ========================================== -->
+    <section id="view-quiz" class="view-section">
+      <!-- Quiz Top Bar -->
+      <div class="quiz-header-bar">
+        <div class="quiz-set-info">
+          <button class="btn btn-outline btn-sm" onclick="app.confirmExitQuiz()">
+            <span>⬅</span> Thoát
+          </button>
+          <div>
+            <h3 id="quizTitle" style="font-size: 1.15rem; margin-bottom: 2px;">Tiêu đề bộ đề</h3>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span id="quizModeBadge" class="mode-pill exam">Thi Thử</span>
+              <span id="quizSubMeta" style="font-size: 0.8rem; color: var(--text-muted);">20 câu • 15 phút</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <!-- Timer Display (Exam mode only) -->
+          <div class="quiz-timer-box" id="quizTimerBox">
+            <span>⏱️</span>
+            <span id="timerDisplay">15:00</span>
+          </div>
+
+          <!-- Submit Button in Header -->
+          <button class="btn btn-primary btn-sm" id="btnSubmitExamTop" onclick="app.openSubmitConfirmModal()">
+            <span>📝</span> Nộp Bài
+          </button>
+        </div>
+
+        <!-- Progress Track -->
+        <div class="quiz-progress-track">
+          <div class="quiz-progress-fill" id="quizProgressBar" style="width: 5%;"></div>
+        </div>
+      </div>
+
+      <!-- Two-Column Quiz Layout -->
+      <div class="quiz-layout-grid">
+        <!-- Left: Question Card -->
+        <div class="question-card" id="questionCard">
+          <div class="question-top-bar">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span class="q-number-badge" id="qCurrentNumberBadge">Câu 1 / 20</span>
+              <span class="q-category-tag" id="qCategoryBadge">Word Form</span>
+            </div>
+            <div class="question-actions-top">
+              <!-- Audio Speech Button -->
+              <button class="audio-tts-btn" id="btnPlayAudio" title="Nghe phát âm chuẩn bản ngữ">
+                <span>🔊</span> Nghe Đọc
+              </button>
+              <!-- Bookmark toggle -->
+              <button class="icon-btn btn-sm" id="btnBookmarkCurrent" title="Lưu vào câu hỏi yêu thích" onclick="app.toggleBookmarkCurrent()">
+                <span id="bookmarkStarIcon">☆</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Question text -->
+          <div class="question-sentence" id="qSentenceText">
+            The marketing department needs to analyze the survey results <span class="blank">______</span> before finalizing the report.
+          </div>
+
+          <!-- Options -->
+          <div class="options-list" id="optionsContainer">
+            <!-- Injected via JavaScript -->
+          </div>
+
+          <!-- Practice Mode Explanation Card (Hidden by default, shown on answer) -->
+          <div class="explanation-card" id="practiceExplanationCard" style="display: none;">
+            <div class="explanation-header">
+              <span>💡</span> Lời Giải Chi Tiết & Dịch Nghĩa
+            </div>
+            <div class="explanation-section">
+              <div class="explanation-label">📖 Dịch Nghĩa Câu</div>
+              <div class="explanation-content" id="expTranslationText">...</div>
+            </div>
+            <div class="explanation-section">
+              <div class="explanation-label">🔍 Phân Tích Ngữ Pháp / Collocations</div>
+              <div class="explanation-content" id="expDetailText">...</div>
+            </div>
+            <div class="explanation-section" id="expVocabSection">
+              <div class="explanation-label">📝 Từ Vựng Trọng Tâm</div>
+              <div class="vocab-tag-list" id="expVocabTags"></div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation Controls -->
+          <div class="question-nav-bottom">
+            <button class="btn btn-secondary" id="btnPrevQuestion" onclick="app.prevQuestion()">
+              <span>◀</span> Câu Trước
+            </button>
+
+            <div class="q-nav-center">
+              <button class="btn btn-outline" id="btnFlagQuestion" onclick="app.toggleFlagCurrent()">
+                <span id="flagIcon">🚩</span> Đánh Dấu Xem Lại
+              </button>
+            </div>
+
+            <button class="btn btn-primary" id="btnNextQuestion" onclick="app.nextQuestion()">
+              Câu Tiếp <span>▶</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Question Navigator Palette -->
+        <aside class="quiz-sidebar">
+          <div class="sidebar-title">
+            <span>Danh Sách Câu</span>
+            <span id="paletteCountProgress" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">0/20 đã làm</span>
+          </div>
+
+          <div class="palette-grid" id="paletteGrid">
+            <!-- Buttons 1 to N injected via JavaScript -->
+          </div>
+
+          <!-- Status Legend -->
+          <div class="palette-legend">
+            <div class="legend-item"><span class="legend-dot blue"></span> Đã chọn đáp án</div>
+            <div class="legend-item"><span class="legend-dot gray"></span> Chưa trả lời</div>
+            <div class="legend-item"><span class="legend-dot amber"></span> Gắn cờ xem lại (🚩)</div>
+            <div class="legend-item" id="legendCorrectPractice" style="display: none;"><span class="legend-dot green"></span> Trả lời đúng</div>
+            <div class="legend-item" id="legendIncorrectPractice" style="display: none;"><span class="legend-dot red"></span> Trả lời sai</div>
+          </div>
+
+          <button class="btn btn-primary" style="width: 100%;" onclick="app.openSubmitConfirmModal()">
+            <span>📝</span> Hoàn Thành & Nộp Bài
+          </button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 3: KẾT QUẢ & XEM LẠI BÀI THI (RESULTS)
+         ========================================== -->
+    <section id="view-results" class="view-section">
+      <div class="results-hero-card">
+        <!-- Radial Score Circle -->
+        <div class="score-circle-wrapper">
+          <svg class="score-circle-svg" viewBox="0 0 120 120">
+            <circle class="score-circle-bg" cx="60" cy="60" r="50" />
+            <circle class="score-circle-fill" id="scoreCircleFill" cx="60" cy="60" r="50"
+                    stroke-dasharray="314.159" stroke-dashoffset="314.159" />
+          </svg>
+          <div class="score-text-inner">
+            <div class="score-percent" id="resPercentScore">85%</div>
+            <div class="score-fraction" id="resFractionScore">17/20 Đúng</div>
+          </div>
+        </div>
+
+        <h2 id="resHeadline" style="font-size: 1.8rem; margin-bottom: 0.5rem;">Kết Quả Rất Ấn Tượng! 🎉</h2>
+        <p id="resSubline" style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">Bạn đã hoàn thành xuất sắc bài thi với sự tập trung cao độ.</p>
+
+        <!-- Summary Grid -->
+        <div class="results-summary-grid">
+          <div class="res-stat-box">
+            <div class="val" style="color: var(--success);" id="resCorrectCount">17</div>
+            <div class="lbl">Số câu đúng</div>
+          </div>
+          <div class="res-stat-box">
+            <div class="val" style="color: var(--danger);" id="resWrongCount">3</div>
+            <div class="lbl">Số câu sai</div>
+          </div>
+          <div class="res-stat-box">
+            <div class="val" style="color: var(--primary);" id="resToeicScore">~425</div>
+            <div class="lbl">Điểm TOEIC ước tính</div>
+          </div>
+          <div class="res-stat-box">
+            <div class="val" id="resTimeSpent">11:42</div>
+            <div class="lbl">Thời gian làm bài</div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="app.retakeCurrentSet()">
+            <span>🔄</span> Làm Lại Đề Này
+          </button>
+          <button class="btn btn-secondary" id="btnPracticeWrongOnly" onclick="app.practiceWrongFromCurrentTest()">
+            <span>⚠️</span> Chỉ Ôn Lại Câu Sai
+          </button>
+          <button class="btn btn-outline" onclick="app.switchView('sets')">
+            <span>📚</span> Trở Về Kho Đề
+          </button>
+        </div>
+      </div>
+
+      <!-- Detailed Review List -->
+      <div class="section-header">
+        <h3 class="section-title"><span>📋</span> Chi Tiết Bài Làm & Lời Giải Từng Câu</h3>
+        <div class="filter-pills" id="reviewFilters">
+          <button class="filter-btn active" onclick="app.filterReview('all')">Tất cả câu hỏi</button>
+          <button class="filter-btn" onclick="app.filterReview('wrong')">Chỉ câu sai (❌)</button>
+          <button class="filter-btn" onclick="app.filterReview('correct')">Chỉ câu đúng (✅)</button>
+        </div>
+      </div>
+
+      <div class="review-list" id="reviewListContainer">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 4: SỔ TAY CÂU HỎI SAI (MISTAKES)
+         ========================================== -->
+    <section id="view-mistakes" class="view-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title"><span>📕</span> Sổ Tay Câu Hỏi Sai (Spaced Repetition)</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+            Các câu bạn từng trả lời sai được tự động lưu vào đây để ôn luyện cho tới khi thành thạo.
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn btn-primary" id="btnPracticeAllMistakes" onclick="app.startMistakesQuiz()">
+            <span>🎯</span> Bắt Đầu Ôn Tập Toàn Bộ
+          </button>
+        </div>
+      </div>
+
+      <div id="mistakesListContainer">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 5: SỔ TAY ĐÁNH DẤU (BOOKMARKS)
+         ========================================== -->
+    <section id="view-bookmarks" class="view-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title"><span>⭐</span> Danh Sách Câu Hỏi Đã Đánh Dấu</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+            Các câu hỏi hay, ngữ pháp đặc biệt mà bạn đã chủ động lưu lại để tra cứu.
+          </p>
+        </div>
+        <button class="btn btn-primary" id="btnPracticeBookmarks" onclick="app.startBookmarksQuiz()">
+          <span>🎯</span> Luyện Tập Các Câu Đã Lưu
+        </button>
+      </div>
+
+      <div id="bookmarksListContainer">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 6: THỐNG KÊ & TIẾN ĐỘ (STATS)
+         ========================================== -->
+    <section id="view-stats" class="view-section">
+      <div class="section-header">
+        <h2 class="section-title"><span>📊</span> Thống Kê & Lịch Sử Học Tập</h2>
+      </div>
+
+      <div class="quick-stats-row" style="margin-bottom: 2.5rem;">
+        <div class="stat-pill">
+          <div class="stat-pill-icon indigo">🎓</div>
+          <div class="stat-pill-info">
+            <div class="value" id="statsTotalExams">0</div>
+            <div class="label">Lượt thi / Luyện tập</div>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-pill-icon green">📈</div>
+          <div class="stat-pill-info">
+            <div class="value" id="statsAvgScore">0%</div>
+            <div class="label">Điểm trung bình</div>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-pill-icon amber">⏳</div>
+          <div class="stat-pill-info">
+            <div class="value" id="statsTotalTime">0 phút</div>
+            <div class="label">Tổng thời gian học</div>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-pill-icon rose">🎯</div>
+          <div class="stat-pill-info">
+            <div class="value" id="statsActiveMistakes">0</div>
+            <div class="label">Câu sai chưa giải quyết</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1.25rem; margin-bottom: 1rem;">Nhật Ký Các Bài Thi Gần Nhất</h3>
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ngày thi</th>
+              <th>Bộ đề</th>
+              <th>Chế độ</th>
+              <th>Điểm số</th>
+              <th>Tỷ lệ</th>
+              <th>Thời gian</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Chưa có lịch sử làm bài.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 7: THÊM CÂU HỎI & NHẬP JSON (CUSTOM)
+         ========================================== -->
+    <section id="view-custom" class="view-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title"><span>➕</span> Thêm Câu Hỏi Mới & Nhập Đề Tự Tạo</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+            Dễ dàng bổ sung câu hỏi mới vào kho dữ liệu SQLite cục bộ hoặc dán định dạng JSON.
+          </p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Form Add Single Question -->
+        <div class="question-card">
+          <h3 style="font-size: 1.2rem; margin-bottom: 1.25rem;">Thêm 1 Câu Hỏi Vào Bộ Đề</h3>
+          <form id="formAddQuestion" onsubmit="app.handleCreateQuestion(event)">
+            <div class="form-group">
+              <label class="form-label">Chọn Bộ Đề Mục Tiêu</label>
+              <select class="form-control" id="customSetSelect" required>
+                <!-- Populated via JS -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Câu Hỏi (Sử dụng ______ cho chỗ trống)</label>
+              <input type="text" class="form-control" id="cqText" placeholder="Ví dụ: She decided to ______ the job offer." required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label class="form-label">Đáp án A</label>
+                <input type="text" class="form-control" id="cqOptA" placeholder="accept" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Đáp án B</label>
+                <input type="text" class="form-control" id="cqOptB" placeholder="acceptance" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Đáp án C</label>
+                <input type="text" class="form-control" id="cqOptC" placeholder="accepting" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Đáp án D</label>
+                <input type="text" class="form-control" id="cqOptD" placeholder="acceptably" required>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label class="form-label">Đáp án đúng</label>
+                <select class="form-control" id="cqCorrect" required>
+                  <option value="0">Đáp án A</option>
+                  <option value="1">Đáp án B</option>
+                  <option value="2">Đáp án C</option>
+                  <option value="3">Đáp án D</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Chuyên đề / Dạng bài</label>
+                <input type="text" class="form-control" id="cqCategory" placeholder="Word Form / Tenses...">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Dịch nghĩa tiếng Việt</label>
+              <input type="text" class="form-control" id="cqTranslation" placeholder="Bản dịch nghĩa câu hỏi...">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Giải thích chi tiết ngữ pháp</label>
+              <textarea class="form-control" id="cqExplanation" rows="2" placeholder="Tại sao chọn đáp án này, vì sao các phương án khác sai..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Ghi chú từ vựng (Tùy chọn)</label>
+              <input type="text" class="form-control" id="cqVocab" placeholder="Ví dụ: accept (v): chấp nhận; job offer: lời mời làm việc">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              <span>💾</span> Lưu Câu Hỏi Vào Database
+            </button>
+          </form>
+        </div>
+
+        <!-- Bulk Import Section (JSON & Plain Text) -->
+        <div class="question-card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-size: 1.2rem;">Nhập Đề Thi Hàng Loạt</h3>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="app.fillSampleJson()">
+                <span>📋</span> Mẫu JSON
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="app.fillSampleTxt()">
+                <span>📝</span> Mẫu Text/Word
+              </button>
+            </div>
+          </div>
+
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Hỗ trợ nạp đề từ <strong>file .json</strong> hoặc <strong>file .txt</strong> (sao chép trực tiếp từ Word/PDF).
+          </p>
+
+          <!-- File Upload Picker -->
+          <div style="margin-bottom: 1.25rem; padding: 0.85rem 1rem; background: var(--bg-surface-secondary); border: 2px dashed var(--border-prominent); border-radius: var(--radius-md); text-align: center;">
+            <label for="fileUploadInput" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 600; color: var(--primary);">
+              <span>📁</span> Chọn file từ máy tính (.json hoặc .txt)
+            </label>
+            <input type="file" id="fileUploadInput" accept=".json,.txt,.md" style="display: none;" onchange="app.handleFileUpload(event)">
+            <div id="uploadedFileName" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Hoặc kéo thả file vào đây, dán trực tiếp vào ô bên dưới</div>
+          </div>
+
+          <form id="formImportBulk" onsubmit="app.handleImportBulk(event)">
+            <div class="form-group">
+              <label class="form-label" style="display: flex; justify-content: space-between;">
+                <span>Nội dung đề thi (JSON hoặc Text dạng Câu 1, A, B, C, D, Đáp án):</span>
+                <span id="detectedFormatBadge" style="font-size: 0.75rem; color: var(--accent);">Tự động nhận diện định dạng</span>
+              </label>
+              <textarea class="form-control" id="jsonInputArea" rows="14" style="font-family: var(--font-mono); font-size: 0.85rem;" placeholder="Dán nội dung JSON hoặc Text dạng đề thi vào đây..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              <span>🚀</span> Xác Nhận Nạp Bộ Đề Vào Ứng Dụng
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================
+       SUBMIT CONFIRMATION MODAL
+       ========================================== -->
+  <div class="modal-overlay" id="submitModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size: 1.3rem;">Xác Nhận Nộp Bài Thi</h3>
+        <button class="icon-btn btn-sm" onclick="app.closeSubmitModal()">✕</button>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <p style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-main);">
+          Bạn có chắc chắn muốn nộp bài thi ngay bây giờ không?
+        </p>
+
+        <div style="background: var(--bg-surface-secondary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: var(--text-muted);">Số câu đã trả lời:</span>
+            <strong id="modalAnsweredCount" style="color: var(--primary);">18/20</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: var(--text-muted);">Số câu chưa trả lời:</span>
+            <strong id="modalUnansweredCount" style="color: var(--warning);">2</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Số câu gắn cờ (🚩):</span>
+            <strong id="modalFlaggedCount" style="color: var(--danger);">1</strong>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button class="btn btn-secondary" onclick="app.closeSubmitModal()">Tiếp Tục Làm Bài</button>
+        <button class="btn btn-primary" onclick="app.finalizeExamSubmission()">Nộp Bài & Chấm Điểm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main Application Logic Script -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

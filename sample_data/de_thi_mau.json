@@ -1,0 +1,43 @@
+{
+  "set": {
+    "id": "de_thi_toeic_moi",
+    "title": "Đề Thi Thử TOEIC Part 5 Mới Nhất",
+    "description": "Bộ đề trắc nghiệm gồm các câu hỏi từ vựng và ngữ pháp chọn lọc.",
+    "category": "TOEIC Practice",
+    "difficulty": "B1 - B2",
+    "time_limit": 15,
+    "badge": "TOEIC 700+"
+  },
+  "questions": [
+    {
+      "question": "The board of directors ______ approved the budget proposal for the upcoming fiscal quarter.",
+      "options": ["unanimous", "unanimously", "unanimity", "unanimousness"],
+      "correct_answer": 1,
+      "translation": "Hội đồng quản trị đã nhất trí thông qua đề xuất ngân sách cho quý tài chính sắp tới.",
+      "explanation": "Cần một TRẠNG TỪ (unanimously) đứng trước động từ 'approved' để bổ nghĩa.",
+      "category": "Word Form (Adverb)",
+      "difficulty": "B1",
+      "vocab_notes": "unanimously (adv): một cách nhất trí; board of directors: ban giám đốc."
+    },
+    {
+      "question": "Participants in the annual marathon must register ______ next Monday to secure their race kits.",
+      "options": ["until", "by", "at", "during"],
+      "correct_answer": 1,
+      "translation": "Người tham gia giải chạy marathon hàng năm phải đăng ký trước thứ Hai tới để nhận bộ dụng cụ chạy.",
+      "explanation": "'By' dùng cho thời hạn chót (deadline) - muộn nhất là trước thời điểm đó.",
+      "category": "Prepositions of Time",
+      "difficulty": "A2",
+      "vocab_notes": "secure (v): đảm bảo có được; race kit: bộ đồ thi đấu."
+    },
+    {
+      "question": "Despite ______ the instructions carefully, the intern assembled the machine incorrectly.",
+      "options": ["read", "having read", "he read", "reader"],
+      "correct_answer": 1,
+      "translation": "Mặc dù đã đọc hướng dẫn cẩn thận, thực tập sinh vẫn lắp ráp chiếc máy không chính xác.",
+      "explanation": "Sau giới từ 'Despite' cần danh động từ. Dùng 'having read' (Perfect Gerund) để nhấn mạnh việc đọc đã hoàn tất trước khi lắp ráp.",
+      "category": "Gerunds",
+      "difficulty": "B2",
+      "vocab_notes": "assemble (v): lắp ráp; incorrectly (adv): một cách sai sót."
+    }
+  ]
+}
